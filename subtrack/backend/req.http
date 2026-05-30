@@ -1,0 +1,101 @@
+### REGISTER
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "name": "anurag",
+  "email": "au@.com",
+  "password": "123456",
+  "role": "user"
+}
+
+###
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "name": "admin",
+  "email": "admin@mail.com",
+  "password": "123456",
+  "role": "admin"
+}
+
+###
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mail.com",
+  "password": "123456"
+}
+
+
+### LOGIN
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "au@.com",
+  "password": "123456"
+}
+
+
+### LOGOUT
+POST http://localhost:5000/auth/logout
+
+
+### READ ALL USERS
+GET http://localhost:5000/users/profile
+
+
+### UPDATE USER DETAILS
+PUT http://localhost:5000/users/profile/6a13d669b178f4ec415a8b1f
+Content-Type: application/json
+
+{
+  "name": "ADMIN"
+}
+
+
+### DELETE USER
+DELETE http://localhost:5000/users/profile/6a0d1e9649aa9dcd081ba0c9
+
+
+### ADD SUBSCRIPTION
+POST http://localhost:5000/subscriptions
+Content-Type: application/json
+
+{
+  "userId": "6a0d393cff30a81123a7b030",
+  "serviceName": "Prime",
+  "category": "Entertainment",
+  "price": 3000,
+  "billingCycle": "monthly",
+  "renewalDate": "2026-06-28",
+  "reminderDays": 3,
+  "status": "active",
+  "paymentMethod": "UPI",
+  "notes": "Premium Plan"
+}
+
+
+### VIEW ALL SUBSCRIPTIONS
+GET http://localhost:5000/subscriptions
+
+
+### VIEW SINGLE SUBSCRIPTION
+GET http://localhost:5000/subscriptions/6a13cbccb178f4ec415a8b1e
+
+
+### UPDATE SUBSCRIPTION
+PUT http://localhost:5000/subscriptions/6a0d4b4ebb729e4714b52ccc
+Content-Type: application/json
+
+{
+  "price": 799,
+  "notes": "Updated Premium Plan"
+}
+
+
+### DELETE SUBSCRIPTION
+DELETE http://localhost:5000/subscriptions/6a13cbccb178f4ec415a8b1e
