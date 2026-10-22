@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { PieChart } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency } from "../utils/currency";
 
 // Helper function to generate SVG path for a solid pie sector
 const getSectorPath = (startPercent, endPercent, cx, cy, r) => {
@@ -178,7 +179,7 @@ function CategoryPieChart({ subscriptions }) {
                     </span>
                   </div>
                   <div className="text-right text-[10px] font-semibold text-[#1d1d1f] pl-2">
-                    ${seg.value.toFixed(2)}
+                    {formatCurrency(seg.value)}
                     <span className="text-[#a1a1a6] font-normal pl-1.5">
                       ({Math.round(seg.percentage * 100)}%)
                     </span>

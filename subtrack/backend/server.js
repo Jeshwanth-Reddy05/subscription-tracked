@@ -14,9 +14,6 @@ import initScheduler from "./utils/scheduler.js";
 
 dotenv.config();
 
-console.log("DB_URL:", process.env.DB_URL);
-console.log("PORT:", process.env.PORT);
-
 const app = express();
 
 app.use(cors());
@@ -38,13 +35,14 @@ const connectDB = async () => {
 
     console.log("DB connection success");
 
-    app.listen(process.env.PORT || 5000, () => {
-      console.log("server started");
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`server started on port ${PORT}`);
       // Initialize cron scheduler
       initScheduler();
     });
   } catch (err) {
-    console.log("failed to connect db", err);
+    console.error("failed to connect db", err.message);
   }
 };
 

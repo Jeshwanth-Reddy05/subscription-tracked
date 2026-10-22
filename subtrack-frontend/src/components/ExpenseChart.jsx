@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency, CURRENCY_SYMBOL } from "../utils/currency";
 
 function ExpenseChart({ subscriptions }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -92,7 +93,7 @@ function ExpenseChart({ subscriptions }) {
           </p>
         </div>
         <div className="flex items-center gap-1 text-[#6e6e73] font-medium text-[9px] bg-[#f5f5f7] px-2.5 py-1 rounded-full uppercase tracking-wider">
-          <span>USD / Burn</span>
+          <span>INR / Burn</span>
         </div>
       </div>
 
@@ -177,7 +178,7 @@ function ExpenseChart({ subscriptions }) {
                       fontSize="8"
                       className="fill-[#a1a1a6] font-semibold"
                     >
-                      ${p.total.toFixed(0)}
+                      {CURRENCY_SYMBOL}{p.total.toFixed(0)}
                     </text>
                   )}
 
@@ -208,7 +209,7 @@ function ExpenseChart({ subscriptions }) {
             }}
           >
             <p className="uppercase text-[#a1a1a6] text-[8px] tracking-wider mb-0.5">{points[hoveredIndex].label} Spend</p>
-            <p className="text-sm font-semibold text-[#0066cc]">${points[hoveredIndex].total.toFixed(2)}</p>
+            <p className="text-sm font-semibold text-[#0066cc]">{formatCurrency(points[hoveredIndex].total)}</p>
           </div>
         )}
       </div>

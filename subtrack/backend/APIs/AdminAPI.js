@@ -95,7 +95,7 @@ router.put("/users/:id/role", async (req, res) => {
   }
 });
 
-// DELETE USER
+// DELETE USER (With cascade delete of orphaned subscriptions)
 router.delete("/users/:id", async (req, res) => {
   try {
     if (!isValidObjectId(req.params.id)) {
@@ -112,8 +112,11 @@ router.delete("/users/:id", async (req, res) => {
       });
     }
 
+    // Cascade delete all subscriptions owned by this user
+    await Subscription.deleteMany({ userId: req.params.id });
+
     res.status(200).json({
-      message: "User deleted successfully",
+      message: "User and associated subscriptions deleted successfully",
     });
   } catch (err) {
     handleServerError(res, err);

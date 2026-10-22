@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Calendar, DollarSign, CreditCard, Bell, FileText, Loader2 } from "lucide-react";
+import { Sparkles, Calendar, CreditCard, Bell, FileText, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as styles from "../styles/common";
+import { CURRENCY_SYMBOL } from "../utils/currency";
 
 // Popular services preset suggestions for automated speed prepopulating
 const SERVICE_PRESETS = [
-  { name: "Netflix", category: "Entertainment", price: 15.99, billingCycle: "monthly", paymentMethod: "Card" },
-  { name: "Spotify", category: "Entertainment", price: 10.99, billingCycle: "monthly", paymentMethod: "UPI" },
-  { name: "Amazon Prime", category: "Entertainment", price: 14.99, billingCycle: "monthly", paymentMethod: "Card" },
-  { name: "ChatGPT Plus", category: "Software", price: 20.00, billingCycle: "monthly", paymentMethod: "Card" },
-  { name: "GitHub Copilot", category: "Work", price: 10.00, billingCycle: "monthly", paymentMethod: "PayPal" },
-  { name: "YouTube Premium", category: "Entertainment", price: 13.99, billingCycle: "monthly", paymentMethod: "UPI" },
-  { name: "Adobe Creative Cloud", category: "Work", price: 54.99, billingCycle: "monthly", paymentMethod: "Card" },
-  { name: "Google One", category: "Utilities", price: 1.99, billingCycle: "monthly", paymentMethod: "UPI" },
+  { name: "Netflix", category: "Entertainment", price: 649, billingCycle: "monthly", paymentMethod: "UPI" },
+  { name: "Spotify", category: "Entertainment", price: 119, billingCycle: "monthly", paymentMethod: "UPI" },
+  { name: "Amazon Prime", category: "Entertainment", price: 299, billingCycle: "monthly", paymentMethod: "UPI" },
+  { name: "ChatGPT Plus", category: "Software", price: 1999, billingCycle: "monthly", paymentMethod: "Card" },
+  { name: "GitHub Copilot", category: "Work", price: 899, billingCycle: "monthly", paymentMethod: "Card" },
+  { name: "YouTube Premium", category: "Entertainment", price: 149, billingCycle: "monthly", paymentMethod: "UPI" },
+  { name: "Disney+ Hotstar", category: "Entertainment", price: 299, billingCycle: "monthly", paymentMethod: "UPI" },
+  { name: "Google One", category: "Utilities", price: 130, billingCycle: "monthly", paymentMethod: "UPI" },
 ];
 
 const CATEGORIES = ["Entertainment", "Software", "Utilities", "Health", "Work", "Others"];
@@ -141,7 +142,7 @@ function SubscriptionForm({ initialData = null, onSubmit, onCancel, loading = fa
                   <span>{preset.name}</span>
                 </div>
                 <span className="text-[10px] text-[#6e6e73] font-medium">
-                  {preset.category} • ${preset.price}
+                  {preset.category} • {CURRENCY_SYMBOL}{preset.price}
                 </span>
               </div>
             ))}
@@ -152,10 +153,10 @@ function SubscriptionForm({ initialData = null, onSubmit, onCancel, loading = fa
       {/* Price & Billing Cycle */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className={styles.labelClass}>Price ($)</label>
+          <label className={styles.labelClass}>Price ({CURRENCY_SYMBOL})</label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#a1a1a6]">
-              <DollarSign className="w-3.5 h-3.5" />
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#a1a1a6] text-xs font-bold">
+              {CURRENCY_SYMBOL}
             </div>
             <input
               type="number"

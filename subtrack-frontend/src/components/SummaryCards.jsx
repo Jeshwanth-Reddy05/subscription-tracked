@@ -1,6 +1,7 @@
 import { useSubscriptionStore } from "../store/subscriptionStore";
 import { CalendarDays, ShieldAlert, Sparkles } from "lucide-react";
 import StatsCard from "./StatsCard";
+import { formatCurrency, CURRENCY_SYMBOL } from "../utils/currency";
 
 function SummaryCards() {
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
@@ -36,7 +37,7 @@ function SummaryCards() {
   });
 
   const nextRenewalText = nearestSub 
-    ? `${nearestSub.serviceName} ($${nearestSub.price})`
+    ? `${nearestSub.serviceName} (${CURRENCY_SYMBOL}${nearestSub.price})`
     : "No active renewals";
 
   const nextRenewalSubtitle = nearestSub
@@ -51,7 +52,7 @@ function SummaryCards() {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 select-none">
       <StatsCard
         title="Monthly Burn Rate"
-        value={`$${monthlyTotal.toFixed(2)}`}
+        value={formatCurrency(monthlyTotal)}
         subtitle="Current Active Cost"
         color="blue"
       />
@@ -66,7 +67,7 @@ function SummaryCards() {
 
       <StatsCard
         title="Average Service Fee"
-        value={`$${averagePrice.toFixed(2)}`}
+        value={formatCurrency(averagePrice)}
         subtitle="Average cost per plan"
         color="indigo"
         icon={CalendarDays}

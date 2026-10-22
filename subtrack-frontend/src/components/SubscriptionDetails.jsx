@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { X, Calendar, Tag, CreditCard, Clock, FileText, RefreshCw, AlertTriangle, ShieldCheck } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency } from "../utils/currency";
 
 function SubscriptionDetails({ sub, onClose, onEdit, onDelete, onToggleStatus }) {
 
@@ -82,7 +83,7 @@ function SubscriptionDetails({ sub, onClose, onEdit, onDelete, onToggleStatus })
           <div className="p-4 bg-[#f5f5f7] border border-[#e8e8ed] rounded-2xl">
             <span className="text-[10px] font-bold text-[#6e6e73] uppercase tracking-wider block">Cost Rate</span>
             <h4 className="text-lg font-bold text-[#1d1d1f] mt-1">
-              ${sub.price.toFixed(2)}
+              {formatCurrency(sub.price)}
             </h4>
             <span className="text-[10px] text-[#a1a1a6] capitalize mt-1.5 block font-semibold">{sub.billingCycle} billing cycle</span>
           </div>
@@ -90,7 +91,7 @@ function SubscriptionDetails({ sub, onClose, onEdit, onDelete, onToggleStatus })
           <div className="p-4 bg-[#f5f5f7] border border-[#e8e8ed] rounded-2xl">
             <span className="text-[10px] font-bold text-[#6e6e73] uppercase tracking-wider block">Total Spent (Est.)</span>
             <h4 className="text-lg font-bold text-[#1d1d1f] mt-1">
-              ${stats.totalPaid.toFixed(2)}
+              {formatCurrency(stats.totalPaid)}
             </h4>
             <span className="text-[10px] text-[#a1a1a6] mt-1.5 block font-semibold">Across {stats.cyclesPaid} payment cycles</span>
           </div>

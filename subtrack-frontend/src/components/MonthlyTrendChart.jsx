@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { BarChart } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency, CURRENCY_SYMBOL } from "../utils/currency";
 
 function MonthlyTrendChart({ subscriptions }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -155,7 +156,7 @@ function MonthlyTrendChart({ subscriptions }) {
                       fontSize="8"
                       className="fill-[#a1a1a6] font-semibold"
                     >
-                      ${bar.cost.toFixed(0)}
+                      {CURRENCY_SYMBOL}{bar.cost.toFixed(0)}
                     </text>
                   )}
 
@@ -186,7 +187,7 @@ function MonthlyTrendChart({ subscriptions }) {
             }}
           >
             <p className="uppercase text-[#a1a1a6] text-[8px] tracking-wider mb-0.5">{bars[hoveredIndex].label} Spend</p>
-            <p className="text-sm font-semibold text-[#0066cc]">${bars[hoveredIndex].cost.toFixed(2)}</p>
+            <p className="text-sm font-semibold text-[#0066cc]">{formatCurrency(bars[hoveredIndex].cost)}</p>
             <p className="text-[8.5px] text-[#6e6e73] mt-1">{bars[hoveredIndex].count} Active Subscriptions</p>
           </div>
         )}

@@ -6,8 +6,8 @@ export const AuthService = {
     return res.data; // Expected response structure: { token, user }
   },
 
-  async register(name, email, password, role) {
-    const res = await API.post("/auth/register", { name, email, password, role });
+  async register(name, email, password) {
+    const res = await API.post("/auth/register", { name, email, password });
     return res.data;
   },
 
@@ -24,5 +24,18 @@ export const AuthService = {
   async updateProfile(userId, profileData) {
     const res = await API.put(`/users/profile/${userId}`, profileData);
     return res.data; // Expected response structure: { updatedUser }
-  }
+  },
+
+  async changePassword(currentPassword, newPassword) {
+    const res = await API.put("/users/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return res.data;
+  },
+
+  async testEmail() {
+    const res = await API.post("/users/test-email");
+    return res.data;
+  },
 };

@@ -54,6 +54,11 @@ const subscriptionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    lastReminderSentRenewalDate: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

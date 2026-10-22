@@ -1,6 +1,7 @@
 import { useSubscriptionStore } from "../store/subscriptionStore";
 import { ChevronRight, Calendar, Tag } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency } from "../utils/currency";
 
 function RecentSubscriptions({ onSelectSub }) {
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
@@ -76,7 +77,7 @@ function RecentSubscriptions({ onSelectSub }) {
               <div className="flex items-center gap-3 shrink-0">
                 <div className="text-right">
                   <span className="text-xs font-black text-[#1d1d1f] block">
-                    ${(sub.price || 0).toFixed(2)}
+                    {formatCurrency(sub.price)}
                   </span>
                   <span className="text-[9px] font-bold text-[#a1a1a6] capitalize mt-0.5 block leading-none">
                     {sub.billingCycle}

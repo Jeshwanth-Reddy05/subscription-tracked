@@ -10,6 +10,7 @@ import {
   Sparkles
 } from "lucide-react";
 import * as styles from "../../styles/common";
+import { CURRENCY_SYMBOL } from "../../utils/currency";
 
 function SystemAnalytics() {
   const [subscriptions, setSubscriptions] = useState([]);
@@ -136,7 +137,7 @@ function SystemAnalytics() {
               </div>
               <div className="mt-4">
                 <h3 className="text-2xl font-bold text-[#1d1d1f]">
-                  ${platformMRR.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {CURRENCY_SYMBOL}{platformMRR.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h3>
                 <p className={`${styles.mutedText} text-[10px] mt-1 leading-relaxed`}>
                   Sum of monthly active subscription equivalent spends across all platform users.
@@ -154,7 +155,7 @@ function SystemAnalytics() {
               </div>
               <div className="mt-4">
                 <h3 className="text-2xl font-bold text-[#1d1d1f]">
-                  ${avgCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {CURRENCY_SYMBOL}{avgCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h3>
                 <p className={`${styles.mutedText} text-[10px] mt-1 leading-relaxed`}>
                   Average raw base price calculated across all {activeSubs.length} active platform subscriptions.
@@ -245,7 +246,7 @@ function SystemAnalytics() {
                           <span className="font-medium text-[#6e6e73]">{item.name}</span>
                         </div>
                         <span className="font-bold text-[#1d1d1f]">
-                          ${item.value.toFixed(2)}
+                          {CURRENCY_SYMBOL}{item.value.toFixed(2)}
                           <span className="text-[10px] text-[#a1a1a6] font-normal ml-1">
                             ({Math.round((item.value / totalCatVal) * 100)}%)
                           </span>

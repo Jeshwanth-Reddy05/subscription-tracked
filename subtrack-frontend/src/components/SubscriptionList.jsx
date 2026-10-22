@@ -8,6 +8,7 @@ import DeleteSubscriptionModal from "./DeleteSubscriptionModal";
 import SubscriptionForm from "./SubscriptionForm";
 import { Search, Filter, ArrowUpDown, CreditCard, HelpCircle, Plus, X, Loader2 } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency } from "../utils/currency";
 
 const CATEGORIES = ["All", "Entertainment", "Software", "Utilities", "Health", "Work", "Others"];
 
@@ -292,7 +293,7 @@ function SubscriptionList({ onAddClick, onEdit, onDelete, onInspect }) {
             Showing {filteredSubs.length} active matching subscription configurations.
           </span>
           <span>
-            Matching Cost Burn: <span className="text-[#0066cc] font-bold">${filteredTotal.toFixed(2)}/mo</span>
+            Matching Cost Burn: <span className="text-[#0066cc] font-bold">{formatCurrency(filteredTotal)}/mo</span>
           </span>
         </div>
       )}

@@ -4,6 +4,7 @@ import ExpenseChart from "./ExpenseChart";
 import CategoryPieChart from "./CategoryPieChart";
 import { BarChart3 } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency } from "../utils/currency";
 
 function AnalyticsOverview() {
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
@@ -98,7 +99,7 @@ function AnalyticsOverview() {
             <span className={`${styles.mutedText} text-[9px] uppercase tracking-widest block`}>Highest Service Charge</span>
             <h4 className="text-base font-bold text-[#1d1d1f] mt-1.5 truncate">
               {analyticsStats.highestSubName} 
-              <span className="text-sm text-[#0066cc] font-bold pl-2">${analyticsStats.highestPrice.toFixed(2)}</span>
+              <span className="text-sm text-[#0066cc] font-bold pl-2">{formatCurrency(analyticsStats.highestPrice)}</span>
             </h4>
           </div>
 
@@ -112,7 +113,7 @@ function AnalyticsOverview() {
           <div className="p-4 bg-[#f5f5f7] rounded-2xl border border-[#e8e8ed]">
             <span className={`${styles.mutedText} text-[9px] uppercase tracking-widest block`}>Core Monthly Burn</span>
             <h4 className="text-base font-bold text-[#1d1d1f] mt-1.5">
-              ${analyticsStats.monthlyBurn.toFixed(2)}
+              {formatCurrency(analyticsStats.monthlyBurn)}
             </h4>
           </div>
         </div>

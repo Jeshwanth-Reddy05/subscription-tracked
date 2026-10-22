@@ -32,7 +32,7 @@ const computeAlerts = (subscriptions) => {
         id: `today-${sub._id}`,
         type: "warning",
         title: `Renewal Today: ${sub.serviceName}`,
-        message: `Due today! Cost: $${sub.price}`,
+        message: `Due today! Cost: ₹${sub.price}`,
         sub,
         diffDays,
       });
@@ -41,7 +41,7 @@ const computeAlerts = (subscriptions) => {
         id: `upcoming-${sub._id}`,
         type: "info",
         title: `Renewal Soon: ${sub.serviceName}`,
-        message: `Due in ${diffDays} days (${renewal.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}). Cost: $${sub.price}`,
+        message: `Due in ${diffDays} days (${renewal.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}). Cost: ₹${sub.price}`,
         sub,
         diffDays,
       });

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { AuthService } from "../services/auth";
 import { useToastStore } from "../store/toastStore";
 import { Lock, Loader2 } from "lucide-react";
 import * as styles from "../styles/common";
@@ -26,23 +27,29 @@ function ChangePassword() {
 
   const onSubmit = async (data) => {
     setLoading(true);
-
-    // Simulate secure API hashing update for local demo protection
-    setTimeout(() => {
+    try {
+      await AuthService.changePassword(data.currentPassword, data.newPassword);
       addToast("Account password changed successfully!", "success");
       reset();
+    } catch (err) {
+      addToast(
+        err.response?.data?.message ||
+          "Failed to update password. Please verify your current password.",
+        "error"
+      );
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
     <div className="bg-white border border-[#e8e8ed] rounded-2xl p-6 font-sans select-none space-y-5">
       <div className="border-b border-[#e8e8ed] pb-3">
         <h3 className={styles.subHeadingClass}>Change Password</h3>
-        <p className={`${styles.mutedText} text-[11px] mt-0.5`}>Protect and secure your account credentials</p>
+        <p className={`${styles.mutedText} text-[11px] mt-0.5`}>
+          Protect and secure your account credentials
+        </p>
       </div>
-
-
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
@@ -54,9 +61,13 @@ function ChangePassword() {
             <input
               type="password"
               placeholder="••••••••"
-              {...register("currentPassword", { required: "Current password is required" })}
+              {...register("currentPassword", {
+                required: "Current password is required",
+              })}
               className={`${styles.inputClass} pl-9.5 text-xs py-2 ${
-                errors.currentPassword ? "border-[#ff3b30] focus:border-[#ff3b30]" : ""
+                errors.currentPassword
+                  ? "border-[#ff3b30] focus:border-[#ff3b30]"
+                  : ""
               }`}
             />
           </div>
@@ -84,7 +95,9 @@ function ChangePassword() {
                 },
               })}
               className={`${styles.inputClass} pl-9.5 text-xs py-2 ${
-                errors.newPassword ? "border-[#ff3b30] focus:border-[#ff3b30]" : ""
+                errors.newPassword
+                  ? "border-[#ff3b30] focus:border-[#ff3b30]"
+                  : ""
               }`}
             />
           </div>
@@ -106,10 +119,13 @@ function ChangePassword() {
               placeholder="••••••••"
               {...register("confirmPassword", {
                 required: "Please confirm your password",
-                validate: (val) => val === newPasswordVal || "New passwords do not match",
+                validate: (val) =>
+                  val === newPasswordVal || "New passwords do not match",
               })}
               className={`${styles.inputClass} pl-9.5 text-xs py-2 ${
-                errors.confirmPassword ? "border-[#ff3b30] focus:border-[#ff3b30]" : ""
+                errors.confirmPassword
+                  ? "border-[#ff3b30] focus:border-[#ff3b30]"
+                  : ""
               }`}
             />
           </div>
@@ -123,9 +139,13 @@ function ChangePassword() {
         <button
           type="submit"
           disabled={loading}
-          className={styles.primaryBtn}
+          className={`${styles.primaryBtn} flex items-center justify-center gap-2`}
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update Password"}
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            "Update Password"
+          )}
         </button>
       </form>
     </div>

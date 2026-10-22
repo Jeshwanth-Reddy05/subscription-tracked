@@ -1,5 +1,7 @@
 import express from "express";
+import bcrypt from "bcryptjs";
 import User from "../models/UserTypeModel.js";
+import Subscription from "../models/SubscriptionTypeModel.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 import sendEmail from "../utils/sendEmail.js";
 
@@ -28,7 +30,7 @@ router.get("/profile", verifyToken(), async (req, res) => {
   }
 });
 
-// UPDATE USER
+// UPDATE USER PROFILE (Strictly whitelisted fields to prevent privilege escalation / mass assignment)
 router.put("/profile/:id", verifyToken(), async (req, res) => {
   try {
     // Only allow users to update their own profile unless they are an admin
@@ -38,9 +40,55 @@ router.put("/profile/:id", verifyToken(), async (req, res) => {
       });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    }).select("-password");
+    const {
+      name,
+      reminderDays,
+      emailNotifications,
+      platformNotifications,
+      upcomingWeekly,
+    } = req.body;
+
+    const updateFields = {};
+
+    if (name !== undefined) {
+      if (typeof name !== "string" || !name.trim()) {
+        return res.status(400).json({
+          message: "Name must be a non-empty string",
+        });
+      }
+      updateFields.name = name.trim();
+    }
+
+    if (reminderDays !== undefined) {
+      const days = Number(reminderDays);
+      if (isNaN(days) || days < 1 || days > 30) {
+        return res.status(400).json({
+          message: "Reminder days must be between 1 and 30",
+        });
+      }
+      updateFields.reminderDays = days;
+    }
+
+    if (emailNotifications !== undefined) {
+      updateFields.emailNotifications = Boolean(emailNotifications);
+    }
+
+    if (platformNotifications !== undefined) {
+      updateFields.platformNotifications = Boolean(platformNotifications);
+    }
+
+    if (upcomingWeekly !== undefined) {
+      updateFields.upcomingWeekly = Boolean(upcomingWeekly);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateFields },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select("-password");
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -60,7 +108,52 @@ router.put("/profile/:id", verifyToken(), async (req, res) => {
   }
 });
 
-// DELETE USER
+// CHANGE PASSWORD
+router.put("/change-password", verifyToken(), async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        message: "Current password and new password are required",
+      });
+    }
+
+    if (typeof newPassword !== "string" || newPassword.length < 6) {
+      return res.status(400).json({
+        message: "New password must be at least 6 characters long",
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Current password is incorrect",
+      });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
+  }
+});
+
+// DELETE USER (With cascade delete of orphaned subscriptions)
 router.delete("/profile/:id", verifyToken(), async (req, res) => {
   try {
     // Only allow users to delete their own profile unless they are an admin
@@ -77,6 +170,9 @@ router.delete("/profile/:id", verifyToken(), async (req, res) => {
         message: "User not found",
       });
     }
+
+    // Cascade delete all orphaned subscriptions owned by this user
+    await Subscription.deleteMany({ userId: req.params.id });
 
     res.status(200).json({
       message: "User deleted successfully",

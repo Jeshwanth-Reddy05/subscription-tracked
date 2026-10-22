@@ -1,4 +1,5 @@
 import { Calendar, Tag, CreditCard, Edit, Trash2, Eye } from "lucide-react";
+import { formatCurrency } from "../utils/currency";
 
 function SubscriptionCard({ sub, onEdit, onDelete, onInspect }) {
   const isCancelled = sub.status === "cancelled";
@@ -83,7 +84,7 @@ function SubscriptionCard({ sub, onEdit, onDelete, onInspect }) {
 
           <div className="text-right shrink-0">
             <span className="text-base font-bold text-[#1d1d1f] block leading-none">
-              ${sub.price.toFixed(2)}
+              {formatCurrency(sub.price)}
             </span>
             <span className="text-[10px] text-[#a1a1a6] tracking-wide capitalize mt-1.5 block">
               {sub.billingCycle}

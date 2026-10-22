@@ -1,6 +1,7 @@
 import { useSubscriptionStore } from "../store/subscriptionStore";
 import { Calendar, AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 import * as styles from "../styles/common";
+import { formatCurrency } from "../utils/currency";
 
 function UpcomingRenewals({ onSelectSub }) {
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
@@ -105,7 +106,7 @@ function UpcomingRenewals({ onSelectSub }) {
                         {sub.serviceName}
                       </h4>
                       <p className="text-[9px] text-[#6e6e73] leading-none mt-0.5">
-                        ${sub.price.toFixed(2)} / {sub.billingCycle}
+                        {formatCurrency(sub.price)} / {sub.billingCycle}
                       </p>
                     </div>
                   </div>

@@ -19,5 +19,10 @@ export const SubscriptionService = {
   async deleteSubscription(id) {
     const res = await API.delete(`/subscriptions/${id}`);
     return res.data;
-  }
+  },
+
+  async sendDueReminders() {
+    const res = await API.post("/subscriptions/send-due-reminders");
+    return res.data;
+  },
 };

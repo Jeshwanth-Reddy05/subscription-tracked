@@ -1,101 +1,101 @@
-### REGISTER
+### REGISTER USER
 POST http://localhost:5000/auth/register
 Content-Type: application/json
 
 {
-  "name": "anurag",
-  "email": "au@.com",
-  "password": "123456",
-  "role": "user"
+  "name": "Anurag",
+  "email": "anurag@example.com",
+  "password": "password123"
 }
 
-###
-POST http://localhost:5000/auth/register
-Content-Type: application/json
-
-{
-  "name": "admin",
-  "email": "admin@mail.com",
-  "password": "123456",
-  "role": "admin"
-}
-
-###
+### LOGIN USER
 POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@mail.com",
-  "password": "123456"
+  "email": "anurag@example.com",
+  "password": "password123"
 }
-
-
-### LOGIN
-POST http://localhost:5000/auth/login
-Content-Type: application/json
-
-{
-  "email": "au@.com",
-  "password": "123456"
-}
-
 
 ### LOGOUT
 POST http://localhost:5000/auth/logout
 
-
-### READ ALL USERS
+### GET CURRENT USER PROFILE
 GET http://localhost:5000/users/profile
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
 
-
-### UPDATE USER DETAILS
-PUT http://localhost:5000/users/profile/6a13d669b178f4ec415a8b1f
+### UPDATE USER PROFILE
+PUT http://localhost:5000/users/profile/<USER_ID>
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
 Content-Type: application/json
 
 {
-  "name": "ADMIN"
+  "name": "Anurag Updated",
+  "reminderDays": 5
 }
 
+### CHANGE PASSWORD
+PUT http://localhost:5000/users/change-password
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
+Content-Type: application/json
 
-### DELETE USER
-DELETE http://localhost:5000/users/profile/6a0d1e9649aa9dcd081ba0c9
-
+{
+  "currentPassword": "password123",
+  "newPassword": "newpassword123"
+}
 
 ### ADD SUBSCRIPTION
 POST http://localhost:5000/subscriptions
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
 Content-Type: application/json
 
 {
-  "userId": "6a0d393cff30a81123a7b030",
-  "serviceName": "Prime",
+  "serviceName": "Netflix",
   "category": "Entertainment",
-  "price": 3000,
+  "price": 649,
   "billingCycle": "monthly",
-  "renewalDate": "2026-06-28",
+  "renewalDate": "2026-11-15",
   "reminderDays": 3,
   "status": "active",
   "paymentMethod": "UPI",
-  "notes": "Premium Plan"
+  "notes": "Standard HD Plan"
 }
-
 
 ### VIEW ALL SUBSCRIPTIONS
 GET http://localhost:5000/subscriptions
-
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
 
 ### VIEW SINGLE SUBSCRIPTION
-GET http://localhost:5000/subscriptions/6a13cbccb178f4ec415a8b1e
-
+GET http://localhost:5000/subscriptions/<SUBSCRIPTION_ID>
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
 
 ### UPDATE SUBSCRIPTION
-PUT http://localhost:5000/subscriptions/6a0d4b4ebb729e4714b52ccc
+PUT http://localhost:5000/subscriptions/<SUBSCRIPTION_ID>
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
 Content-Type: application/json
 
 {
   "price": 799,
-  "notes": "Updated Premium Plan"
+  "notes": "Upgraded to 4K Ultra HD"
 }
 
-
 ### DELETE SUBSCRIPTION
-DELETE http://localhost:5000/subscriptions/6a13cbccb178f4ec415a8b1e
+DELETE http://localhost:5000/subscriptions/<SUBSCRIPTION_ID>
+Authorization: Bearer <REPLACE_WITH_JWT_TOKEN>
+
+### ADMIN: GET OVERVIEW
+GET http://localhost:5000/admin/overview
+Authorization: Bearer <REPLACE_WITH_ADMIN_JWT_TOKEN>
+
+### ADMIN: GET ALL USERS
+GET http://localhost:5000/admin/users
+Authorization: Bearer <REPLACE_WITH_ADMIN_JWT_TOKEN>
+
+### ADMIN: PROMOTE USER TO ADMIN
+PUT http://localhost:5000/admin/users/<USER_ID>/role
+Authorization: Bearer <REPLACE_WITH_ADMIN_JWT_TOKEN>
+Content-Type: application/json
+
+{
+  "role": "admin"
+}

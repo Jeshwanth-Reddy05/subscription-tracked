@@ -29,7 +29,7 @@ function Register() {
     setLoading(true);
 
     try {
-      await AuthService.register(data.name, data.email, data.password, "user");
+      await AuthService.register(data.name, data.email, data.password);
       addToast("Account created successfully! Welcome to SubTrack.", "success");
       navigate("/");
     } catch (err) {
