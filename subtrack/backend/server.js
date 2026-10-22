@@ -3,6 +3,12 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import dns from "dns";
+
+// Force IPv4-first DNS resolution to avoid ENETUNREACH on platforms lacking IPv6 routing (e.g. Render)
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 import authApi from "./APIs/CommonAPI.js";
 import userApi from "./APIs/UserAPI.js";

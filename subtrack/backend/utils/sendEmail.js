@@ -1,4 +1,25 @@
 import nodemailer from "nodemailer";
+import dns from "dns/promises";
+import net from "net";
+
+/**
+ * Resolves a hostname strictly to an IPv4 address to prevent ENETUNREACH errors
+ * on hosting environments (like Render or Docker containers) that lack outbound IPv6 routing.
+ */
+const resolveIPv4Host = async (hostname) => {
+  if (!hostname || net.isIP(hostname)) {
+    return hostname;
+  }
+  try {
+    const addresses = await dns.resolve4(hostname);
+    if (addresses && addresses.length > 0) {
+      return addresses[0];
+    }
+  } catch (err) {
+    console.warn(`IPv4 DNS lookup for ${hostname} fallback:`, err.message);
+  }
+  return hostname;
+};
 
 const sendEmail = async (options) => {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
@@ -6,18 +27,22 @@ const sendEmail = async (options) => {
     return { skipped: true, message: "SMTP credentials missing in .env" };
   }
 
+  const rawHost = process.env.SMTP_HOST || "smtp.gmail.com";
+  const ipv4Host = await resolveIPv4Host(rawHost);
+
   const port = Number(process.env.SMTP_PORT) || 587;
   const isSecure = port === 465;
 
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    host: ipv4Host,
     port: port,
     secure: isSecure,
+    servername: rawHost, // Retains SNI for TLS certificate validation
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    connectionTimeout: 10000,
+    connectionTimeout: 15000,
   });
 
   const mailOptions = {
