@@ -1,8 +1,12 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
-  timeout: 10000,
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.DEV
+      ? "http://localhost:5000"
+      : "https://subscription-tracked-backend.onrender.com"),
+  timeout: 20000,
 });
 
 // Request Interceptor: Attach bearer token if it exists
