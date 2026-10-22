@@ -20,11 +20,54 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
+// Root endpoint for deployment status check
+app.get("/", (req, res) => {
+  res.status(200).json({
+    name: "SubTrack API",
+    status: "online",
+    message: "SubTrack Subscription Management API is running",
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      auth: "/auth",
+      users: "/users",
+      subscriptions: "/subscriptions",
+      admin: "/admin",
+      health: "/health",
+      testEmail: "/users/test-email"
+    }
+  });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  const dbState = mongoose.connection.readyState === 1 ? "connected" : "connecting/disconnected";
+  res.status(200).json({
+    status: "healthy",
+    database: dbState,
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Direct alias for test-email
+app.get("/test-email", (req, res) => {
+  res.redirect("/users/test-email");
+});
+
 // ROUTES
 app.use("/auth", authApi);
 app.use("/users", userApi);
 app.use("/subscriptions", subscriptionApi);
 app.use("/admin", adminApi);
+
+// 404 handler for unmatched routes (returns clean JSON)
+app.use((req, res) => {
+  res.status(404).json({
+    status: 404,
+    message: `Cannot ${req.method} ${req.originalUrl}`,
+    suggestion: "Visit / or /health to check available endpoints"
+  });
+});
 
 // GLOBAL ERROR HANDLER
 app.use(errorHandler);

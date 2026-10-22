@@ -1,5 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/UserTypeModel.js";
 import Subscription from "../models/SubscriptionTypeModel.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
@@ -185,20 +186,64 @@ router.delete("/profile/:id", verifyToken(), async (req, res) => {
   }
 });
 
-// TEST EMAIL SMTP CONFIGURATION
-router.post("/test-email", verifyToken(), async (req, res) => {
+// TEST EMAIL SMTP CONFIGURATION (Supports POST from authenticated UI and GET from browser/direct inspection)
+const handleTestEmail = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    let recipientEmail = null;
+    let recipientName = "SubTrack User";
+
+    // 1. Try to find authenticated user from token if provided
+    let token = req.cookies?.token;
+    if (!token && req.headers.authorization) {
+      if (req.headers.authorization.startsWith("Bearer ")) {
+        token = req.headers.authorization.split(" ")[1];
+      } else {
+        token = req.headers.authorization;
+      }
+    }
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id || decoded.userId);
+        if (user) {
+          recipientEmail = user.email;
+          recipientName = user.name;
+        }
+      } catch (e) {
+        // Token invalid or expired, proceed to query/fallback
+      }
+    }
+
+    // 2. Check query or body params
+    if (!recipientEmail) {
+      recipientEmail =
+        req.query.to || req.query.email || req.body?.to || req.body?.email;
+      if (recipientEmail) {
+        recipientName = req.query.name || req.body?.name || "SubTrack User";
+      }
+    }
+
+    // 3. Fallback to configured SMTP_USER (app owner/admin)
+    if (!recipientEmail) {
+      recipientEmail = process.env.SMTP_USER;
+      recipientName = "SubTrack Administrator";
+    }
+
+    if (!recipientEmail) {
+      return res.status(400).json({
+        status: "error",
+        message:
+          "No recipient email specified and SMTP_USER is not configured in server environment variables.",
+      });
     }
 
     const testSubject = "SubTrack SMTP Diagnostic Email";
-    const testMessage = `Hello ${user.name},\n\nThis is a diagnostic email sent from your SubTrack subscription management application.\n\nIf you are receiving this message, your SMTP configurations (host, port, credentials) are configured and working correctly!\n\nBest regards,\nThe SubTrack Team`;
+    const testMessage = `Hello ${recipientName},\n\nThis is a diagnostic email sent from your SubTrack subscription management application.\n\nIf you are receiving this message, your SMTP configurations (host, port, credentials) are configured and working correctly!\n\nBest regards,\nThe SubTrack Team`;
     const testHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
         <h2 style="color: #0066cc; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px;">SMTP Diagnostic Success</h2>
-        <p>Hello <strong>${user.name}</strong>,</p>
+        <p>Hello <strong>${recipientName}</strong>,</p>
         <p>This is a diagnostic email sent from your <strong>SubTrack</strong> subscription management application.</p>
         <div style="background-color: #34c759/10; border-left: 4px solid #34c759; padding: 12px; margin: 15px 0; border-radius: 4px; color: #248a3d; font-size: 14px;">
           <strong>Connection Successful:</strong> Your SMTP configuration (host, port, credentials) is working perfectly!
@@ -210,22 +255,37 @@ router.post("/test-email", verifyToken(), async (req, res) => {
       </div>
     `;
 
-    await sendEmail({
-      to: user.email,
+    const emailResult = await sendEmail({
+      to: recipientEmail,
       subject: testSubject,
       text: testMessage,
       html: testHtml,
     });
 
+    if (emailResult && emailResult.skipped) {
+      return res.status(400).json({
+        status: "skipped",
+        message:
+          "SMTP credentials (SMTP_USER or SMTP_PASS) are missing from server environment variables.",
+      });
+    }
+
     res.status(200).json({
-      message: "Diagnostic email sent successfully! Please check your inbox.",
+      status: "success",
+      message: `Diagnostic email sent successfully to ${recipientEmail}! Please check your inbox.`,
+      recipient: recipientEmail,
+      timestamp: new Date().toISOString(),
     });
   } catch (err) {
     res.status(500).json({
+      status: "error",
       message: "SMTP configuration or connection error. Please verify your credentials.",
       error: err.message,
     });
   }
-});
+};
+
+router.post("/test-email", handleTestEmail);
+router.get("/test-email", handleTestEmail);
 
 export default router;

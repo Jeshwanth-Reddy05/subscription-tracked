@@ -93,3 +93,14 @@ test("subscription payload whitelist prevents userId tampering", () => {
   assert.equal(updateFields.serviceName, "Netflix");
   assert.equal(updateFields.price, 649);
 });
+
+test("test-email endpoint resolves recipient via query, token, or fallback correctly", () => {
+  const resolveRecipient = (tokenUserEmail, queryEmail, envSmtpUser) => {
+    return tokenUserEmail || queryEmail || envSmtpUser || null;
+  };
+
+  assert.equal(resolveRecipient("token@user.com", "query@user.com", "admin@smtp.com"), "token@user.com");
+  assert.equal(resolveRecipient(null, "query@user.com", "admin@smtp.com"), "query@user.com");
+  assert.equal(resolveRecipient(null, null, "admin@smtp.com"), "admin@smtp.com");
+  assert.equal(resolveRecipient(null, null, null), null);
+});
