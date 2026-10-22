@@ -46,8 +46,16 @@ const sendEmail = async (options) => {
   // 1. HTTP API Provider: Resend (Works over HTTPS port 443, bypassing cloud firewall SMTP blocks like Render Free Tier)
   if (process.env.RESEND_API_KEY) {
     try {
-      const fromAddress =
-        process.env.FROM_EMAIL || "SubTrack <onboarding@resend.dev>";
+      // Resend requires onboarding@resend.dev unless a custom domain is verified
+      let fromAddress = process.env.RESEND_FROM || "SubTrack <onboarding@resend.dev>";
+      if (
+        process.env.FROM_EMAIL &&
+        !process.env.FROM_EMAIL.includes("@gmail.com") &&
+        !process.env.FROM_EMAIL.includes("@yahoo.com") &&
+        !process.env.FROM_EMAIL.includes("@outlook.com")
+      ) {
+        fromAddress = process.env.FROM_EMAIL;
+      }
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
