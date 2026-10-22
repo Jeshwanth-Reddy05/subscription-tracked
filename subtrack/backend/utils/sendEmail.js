@@ -47,7 +47,8 @@ const sendEmail = async (options) => {
   if (process.env.RESEND_API_KEY) {
     try {
       // Resend requires onboarding@resend.dev unless a custom domain is verified
-      let fromAddress = process.env.RESEND_FROM || "SubTrack <onboarding@resend.dev>";
+      let fromAddress =
+        process.env.RESEND_FROM || "SubTrack <onboarding@resend.dev>";
       if (
         process.env.FROM_EMAIL &&
         !process.env.FROM_EMAIL.includes("@gmail.com") &&
@@ -56,7 +57,8 @@ const sendEmail = async (options) => {
       ) {
         fromAddress = process.env.FROM_EMAIL;
       }
-      const res = await fetch("https://api.resend.com/emails", {
+
+      let res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -71,8 +73,38 @@ const sendEmail = async (options) => {
         }),
       });
 
-      const data = await res.json();
+      let data = await res.json();
+
+      // If Resend free sandbox restricted delivery to account owner's email, auto-forward to allowed email
       if (!res.ok) {
+        const errorMsg = data.message || data.error?.message || "";
+        const match = errorMsg.match(/own email address \(([^)]+)\)/);
+        if (match && match[1] && match[1] !== recipient) {
+          const allowedRecipient = match[1];
+          console.warn(
+            `Resend sandbox restriction: rerouting email from ${recipient} to account owner ${allowedRecipient}`
+          );
+          res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: fromAddress,
+              to: [allowedRecipient],
+              subject: `[SubTrack Sandbox for ${recipient}] ${subject}`,
+              text: textContent,
+              html: htmlContent,
+            }),
+          });
+          data = await res.json();
+          if (res.ok) {
+            data.reroutedTo = allowedRecipient;
+            data.originalRecipient = recipient;
+            return data;
+          }
+        }
         throw new Error(
           data.message || data.error?.message || "Resend API error"
         );

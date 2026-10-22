@@ -270,10 +270,15 @@ const handleTestEmail = async (req, res) => {
       });
     }
 
+    const actualRecipient = emailResult?.reroutedTo || recipientEmail;
+    const reroutedNotice = emailResult?.reroutedTo
+      ? ` (automatically redirected to your Resend account email from ${recipientEmail})`
+      : "";
+
     res.status(200).json({
       status: "success",
-      message: `Diagnostic email sent successfully to ${recipientEmail}! Please check your inbox.`,
-      recipient: recipientEmail,
+      message: `Diagnostic email sent successfully to ${actualRecipient}${reroutedNotice}! Please check your inbox.`,
+      recipient: actualRecipient,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {
