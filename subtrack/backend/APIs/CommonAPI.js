@@ -53,11 +53,12 @@ router.post("/register", async (req, res) => {
       role: "user",
     });
 
-    // Send welcome registration email
-    sendEmail({
-      to: normalizedEmail,
-      subject: "Welcome to SubTrack! 🎉",
-      html: `
+    // Send welcome registration email (await to guarantee completion before response ends)
+    try {
+      await sendEmail({
+        to: normalizedEmail,
+        subject: "Welcome to SubTrack! 🎉",
+        html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #0066cc; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px;">Welcome to SubTrack, ${name.trim()}!</h2>
           <p>Your account has been registered successfully.</p>
@@ -75,10 +76,15 @@ router.post("/register", async (req, res) => {
           </p>
         </div>
       `,
-      text: `Hi ${name.trim()}, welcome to SubTrack! Your account has been registered with ${normalizedEmail}.`,
-    })
-      .then(() => console.log(`Welcome email dispatched to ${normalizedEmail}`))
-      .catch((err) => console.warn(`Welcome email delivery failed for ${normalizedEmail}:`, err.message));
+        text: `Hi ${name.trim()}, welcome to SubTrack! Your account has been registered with ${normalizedEmail}.`,
+      });
+      console.log(`Welcome email dispatched to ${normalizedEmail}`);
+    } catch (emailErr) {
+      console.warn(
+        `Welcome email delivery failed for ${normalizedEmail}:`,
+        emailErr.message
+      );
+    }
 
     res.status(201).json({
       message: "User registered successfully",
@@ -123,16 +129,13 @@ router.post("/login", async (req, res) => {
     // Generate token
     const token = generateToken(res, user._id, user.role);
 
-    // Send login security alert email
-    const loginTime = new Date().toLocaleString("en-US", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-
-    sendEmail({
-      to: user.email,
-      subject: "Security Alert: New login to your SubTrack account",
-      html: `
+    // Send login security alert email (await to guarantee dispatch before HTTP response terminates)
+    if (user.emailNotifications !== false) {
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "Security Alert: New login to your SubTrack account",
+          html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #0066cc; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px;">Account Login Detected</h2>
           <p>Hi <strong>${user.name}</strong>,</p>
@@ -148,12 +151,16 @@ router.post("/login", async (req, res) => {
           </p>
         </div>
       `,
-      text: `Hi ${user.name}, a new login was detected on your SubTrack account at ${loginTime}. If this was not you, please change your password immediately.`,
-    })
-      .then(() => console.log(`Login alert dispatched to ${user.email}`))
-      .catch((emailErr) => {
-        console.warn("Could not send login notification email:", emailErr.message);
-      });
+          text: `Hi ${user.name}, a new login was detected on your SubTrack account at ${loginTime}. If this was not you, please change your password immediately.`,
+        });
+        console.log(`Login alert dispatched successfully to ${user.email}`);
+      } catch (emailErr) {
+        console.warn(
+          "Could not send login notification email:",
+          emailErr.message
+        );
+      }
+    }
 
     res.status(200).json({
       message: "Login successful",
