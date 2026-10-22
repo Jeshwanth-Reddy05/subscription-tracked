@@ -43,7 +43,42 @@ const sendEmail = async (options) => {
   const textContent = options.message || options.text;
   const htmlContent = options.html;
 
-  // 1. HTTP API Provider: Resend (Works over HTTPS port 443, bypassing cloud firewall SMTP blocks like Render Free Tier)
+  // 1. Google Apps Script Webhook Bridge (Sends directly from mullapandi49@gmail.com to ANY recipient over HTTPS 443)
+  if (process.env.GMAIL_WEBHOOK_URL) {
+    try {
+      const res = await fetch(process.env.GMAIL_WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify({
+          to: recipient,
+          subject: subject,
+          text: textContent,
+          html: htmlContent,
+        }),
+        redirect: "follow",
+      });
+
+      const text = await res.text();
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { message: text };
+      }
+
+      if (data.status === "error") {
+        throw new Error(data.message || "Gmail Webhook dispatch error");
+      }
+      return data;
+    } catch (apiErr) {
+      console.error("Gmail Webhook dispatch error:", apiErr.message);
+      throw apiErr;
+    }
+  }
+
+  // 2. HTTP API Provider: Resend (Works over HTTPS port 443, bypassing cloud firewall SMTP blocks like Render Free Tier)
   if (process.env.RESEND_API_KEY) {
     try {
       // Resend requires onboarding@resend.dev unless a custom domain is verified
